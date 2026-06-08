@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manoj's Workout Plan</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#080808">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GRIND">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<meta name="mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080808;--s1:#0f0f0f;--s2:#181818;--s3:#222;--border:#2c2c2c;--border2:#383838;--lime:#c8ff00;--lime2:#a8d800;--orange:#ff5c1a;--blue:#3b82f6;--green:#22c55e;--red:#ef4444;--text:#f5f5f5;--muted:#666;--muted2:#999;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.hero{padding:48px 28px 36px;position:relative;overflow:hidden;border-bottom:1px solid var(--border);}
+.hero-glow{position:absolute;top:-120px;right:-80px;width:500px;height:500px;background:radial-gradient(circle,rgba(200,255,0,0.06) 0%,transparent 65%);pointer-events:none;}
+.hero-glow2{position:absolute;bottom:-100px;left:-60px;width:400px;height:400px;background:radial-gradient(circle,rgba(255,92,26,0.05) 0%,transparent 65%);pointer-events:none;}
+.hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--lime);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.hero-eyebrow::before{content:'';width:24px;height:1px;background:var(--lime);}
+.hero-name{font-size:clamp(36px,8vw,72px);font-weight:800;line-height:1;letter-spacing:-1px;margin-bottom:4px;}
+.hero-name span{color:var(--lime);}
+.hero-sub{font-size:clamp(14px,3vw,18px);color:var(--muted2);font-weight:400;margin-bottom:28px;}
+.stats-strip{display:flex;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.stat-block{flex:1;padding:14px 12px;text-align:center;border-right:1px solid var(--border);transition:background 0.2s;}
+.stat-block:last-child{border-right:none;}
+.stat-block:hover{background:var(--s2);}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:clamp(16px,4vw,22px);font-weight:500;color:var(--lime);display:block;}
+.stat-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:block;margin-top:3px;}
+.alert-banner{margin-top:20px;background:linear-gradient(135deg,rgba(255,92,26,0.08),rgba(255,92,26,0.04));border:1px solid rgba(255,92,26,0.25);border-radius:10px;padding:12px 16px;display:flex;gap:10px;align-items:flex-start;}
+.alert-banner p{font-size:12px;color:#ffb899;line-height:1.6;font-family:'JetBrains Mono',monospace;}
+.alert-banner strong{color:var(--orange);}
+.nav{display:flex;gap:2px;padding:12px 16px;background:rgba(8,8,8,0.95);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
+.nav::-webkit-scrollbar{display:none;}
+.nav-btn{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:8px 14px;border:1px solid transparent;background:none;color:var(--muted);cursor:pointer;border-radius:6px;transition:all 0.15s;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.nav-btn:hover{color:var(--text);border-color:var(--border2);}
+.nav-btn.active{color:var(--lime);border-color:rgba(200,255,0,0.3);background:rgba(200,255,0,0.05);}
+.nav-btn .dot{width:5px;height:5px;border-radius:50%;background:var(--lime);display:none;}
+.nav-btn.active .dot{display:block;}
+.panel{display:none;padding:24px 20px;max-width:860px;}
+.panel.active{display:block;animation:fadeUp 0.3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.sec-title{font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:3px;text-transform:uppercase;color:var(--lime);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+.week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:24px;}
+.day-pill{border-radius:10px;padding:10px 4px;text-align:center;border:1px solid var(--border);background:var(--s1);transition:all 0.2s;}
+.day-pill.active-day{border-color:var(--lime);background:rgba(200,255,0,0.06);box-shadow:0 0 12px rgba(200,255,0,0.08);}
+.day-pill.rest-day{opacity:0.35;}
+.day-pill-name{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+.day-pill-type{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-top:5px;}
+.active-day .day-pill-type{color:var(--lime);}
+.rest-day .day-pill-type{color:var(--muted);}
+.prog-phases{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px;}
+.prog-phase{background:var(--s2);border-radius:10px;padding:14px;border:1px solid var(--border);border-top:3px solid;}
+.prog-phase.p1{border-top-color:#444;}.prog-phase.p2{border-top-color:var(--muted);}.prog-phase.p3{border-top-color:var(--lime);}
+.prog-phase .ph-title{font-weight:800;font-size:15px;margin-bottom:4px;}
+.prog-phase .ph-sub{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:8px;}
+.prog-phase .ph-text{font-size:11px;color:#999;line-height:1.6;}
+.workout-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;transition:border-color 0.2s;}
+.workout-card:hover{border-color:var(--border2);}
+.wc-header{padding:18px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;}
+.wc-left{display:flex;align-items:center;gap:14px;}
+.wc-badge{font-size:34px;font-weight:800;color:var(--lime);line-height:1;min-width:54px;}
+.wc-info h3{font-size:15px;font-weight:700;margin-bottom:2px;}
+.wc-info p{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.5px;}
+.wc-right{display:flex;align-items:center;gap:10px;}
+.wc-progress{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);}
+.wc-toggle{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:12px;}
+.workout-card.open .wc-toggle{transform:rotate(180deg);border-color:var(--lime);color:var(--lime);}
+.ex-list{display:none;padding:0 16px 16px;}
+.workout-card.open .ex-list{display:block;}
+.ex-row{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:10px;border:1px solid transparent;transition:all 0.2s;margin-bottom:6px;cursor:pointer;background:var(--s2);}
+.ex-row:hover{border-color:var(--border2);}
+.ex-row.done{border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.04);}
+.ex-row.done .ex-name{color:var(--muted);text-decoration:line-through;}
+.ex-check{width:22px;height:22px;border-radius:5px;border:1.5px solid var(--border2);background:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all 0.2s;font-size:11px;color:transparent;}
+.ex-row.done .ex-check{background:var(--green);border-color:var(--green);color:#000;}
+.ex-body{flex:1;min-width:0;}
+.ex-name{font-size:13px;font-weight:600;margin-bottom:3px;}
+.ex-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.ex-sets{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--lime);background:rgba(200,255,0,0.08);padding:2px 7px;border-radius:4px;border:1px solid rgba(200,255,0,0.15);}
+.ex-rest{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);background:var(--s1);padding:2px 6px;border-radius:4px;}
+.ex-tip{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5;}
+.ex-gif-btn{flex-shrink:0;width:36px;height:36px;border-radius:8px;border:1px solid var(--border2);background:var(--s1);color:var(--muted2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.2s;text-decoration:none;}
+.ex-gif-btn:hover{border-color:var(--orange);color:var(--orange);background:rgba(255,92,26,0.08);}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal{background:var(--s2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:460px;overflow:hidden;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--s2);}
+.modal-title{font-size:14px;font-weight:700;}
+.modal-close{background:none;border:1px solid var(--border2);color:var(--muted);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.modal-close:hover{border-color:var(--red);color:var(--red);}
+.modal-body{padding:20px;}
+.modal-gif{width:100%;border-radius:10px;background:var(--s3);margin-bottom:16px;overflow:hidden;}
+.modal-gif img{width:100%;display:block;border-radius:10px;}
+.modal-gif-placeholder{text-align:center;padding:28px 20px;}
+.modal-gif-placeholder .gif-icon{font-size:36px;margin-bottom:8px;}
+.modal-gif-placeholder p{font-size:12px;color:var(--muted);line-height:1.6;}
+.modal-links{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.modal-link{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--s3);color:var(--text);text-decoration:none;font-size:12px;font-family:'JetBrains Mono',monospace;transition:all 0.2s;}
+.modal-link:hover{border-color:var(--lime);color:var(--lime);}
+.modal-cues h4{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-family:'JetBrains Mono',monospace;}
+.cue-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.cue-list li{font-size:12px;color:#bbb;padding-left:14px;position:relative;line-height:1.5;}
+.cue-list li::before{content:'›';position:absolute;left:0;color:var(--lime);}
+.track-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:20px;}
+.track-field{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.track-field label{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px;}
+.track-field input,.track-field select{width:100%;background:var(--s3);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;}
+.track-field input:focus,.track-field select:focus{border-color:var(--lime);}
+.track-field select option{background:var(--s3);}
+.btn-lime{background:var(--lime);color:#000;border:none;padding:10px 22px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;font-weight:500;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-lime:hover{background:var(--lime2);transform:translateY(-1px);}
+.btn-ghost{background:none;color:var(--muted);border:1px solid var(--border);padding:10px 22px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;cursor:pointer;transition:all 0.2s;}
+.btn-ghost:hover{border-color:var(--red);color:var(--red);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+.chart-wrap{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;}
+.chart-wrap h3{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+canvas{width:100%!important;}
+.log-entries{display:flex;flex-direction:column;gap:8px;}
+.log-entry{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;animation:fadeUp 0.2s ease;}
+.log-entry:hover{border-color:var(--border2);}
+.log-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:3px;}
+.log-detail{font-size:12px;color:var(--muted2);}
+.log-weight-val{font-size:28px;font-weight:800;color:var(--lime);}
+.log-weight-unit{font-size:11px;color:var(--muted);margin-top:-2px;text-align:right;font-family:'JetBrains Mono',monospace;}
+.log-del{background:none;border:none;color:var(--border2);cursor:pointer;font-size:14px;padding:4px;transition:color 0.2s;}
+.log-del:hover{color:var(--red);}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px;}
+.empty-state .empty-icon{font-size:36px;margin-bottom:12px;opacity:0.4;}
+.macro-targets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px;}
+.macro-block{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center;}
+.macro-val{font-size:26px;font-weight:800;display:block;margin-bottom:2px;}
+.macro-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);}
+.meal-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+.meal-card{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:18px;transition:border-color 0.2s;}
+.meal-card:hover{border-color:var(--border2);}
+.meal-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.meal-name{font-size:14px;font-weight:700;}
+.meal-kcal{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--lime);background:rgba(200,255,0,0.08);padding:2px 7px;border-radius:4px;border:1px solid rgba(200,255,0,0.15);}
+.meal-protein{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:10px;}
+.meal-items{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.meal-items li{font-size:12px;color:#bbb;padding-left:12px;position:relative;line-height:1.5;}
+.meal-items li::before{content:'·';position:absolute;left:0;color:var(--lime);}
+.supp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+.supp-card{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:16px;transition:border-color 0.2s;}
+.supp-card:hover{border-color:var(--border2);}
+.supp-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.supp-name{font-size:13px;font-weight:700;}
+.supp-time{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--lime);background:rgba(200,255,0,0.08);padding:2px 6px;border-radius:4px;border:1px solid rgba(200,255,0,0.12);}
+.supp-note{font-size:11px;color:var(--muted);line-height:1.6;}
+.rule-cards{display:flex;flex-direction:column;gap:8px;}
+.rule-card{display:flex;gap:16px;align-items:flex-start;background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;transition:all 0.2s;}
+.rule-card:hover{border-color:var(--border2);transform:translateX(3px);}
+.rule-num{font-size:32px;font-weight:800;color:rgba(200,255,0,0.12);line-height:1;min-width:36px;transition:color 0.2s;}
+.rule-card:hover .rule-num{color:var(--lime);}
+.rule-body h4{font-size:13px;font-weight:700;margin-bottom:4px;}
+.rule-body p{font-size:12px;color:var(--muted2);line-height:1.6;}
+.streak-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
+.streak-dot{width:16px;height:16px;border-radius:3px;background:var(--s3);border:1px solid var(--border);transition:all 0.2s;cursor:default;}
+.streak-dot.hit{background:var(--lime);border-color:var(--lime2);}
+.streak-dot.missed{background:rgba(239,68,68,0.3);border-color:rgba(239,68,68,0.3);}
+.streak-dot.restlog{background:var(--s2);border-color:var(--border);}
+@media(max-width:480px){
+  .hero{padding:32px 16px 24px;}.panel{padding:16px 14px;}
+  .stats-strip{display:grid;grid-template-columns:repeat(3,1fr);}
+  .stat-block:nth-child(1),.stat-block:nth-child(2),.stat-block:nth-child(3){border-bottom:1px solid var(--border);}
+  .stat-block:nth-child(3){border-right:none;}
+  .macro-targets{grid-template-columns:repeat(2,1fr);}
+  .prog-phases{grid-template-columns:1fr;}
+  .week-strip{gap:4px;}.day-pill{padding:8px 2px;}.day-pill-name{font-size:8px;}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-glow"></div><div class="hero-glow2"></div>
+  <div class="hero-eyebrow">3-Day PPL · Beginner Hypertrophy</div>
+  <div class="hero-name">MANOJ'S <span>GRIND</span></div>
+  <div class="hero-sub">52 kg → 60 kg &nbsp;·&nbsp; Bangalore &nbsp;·&nbsp; Phase 1</div>
+  <div class="stats-strip">
+    <div class="stat-block"><span class="stat-num">52</span><span class="stat-lbl">Current kg</span></div>
+    <div class="stat-block"><span class="stat-num">60</span><span class="stat-lbl">Target kg</span></div>
+    <div class="stat-block"><span class="stat-num">PPL</span><span class="stat-lbl">Split</span></div>
+    <div class="stat-block"><span class="stat-num">110g</span><span class="stat-lbl">Protein/day</span></div>
+    <div class="stat-block"><span class="stat-num" id="streak-count">0</span><span class="stat-lbl">Day Streak</span></div>
+  </div>
+  <div class="alert-banner">
+    <div style="font-size:16px;margin-top:1px;">⚠️</div>
+    <p><strong>Action needed:</strong> Vitamin D &amp; B12 retest overdue. Book it this week — deficiencies directly impact energy and muscle recovery.</p>
+  </div>
+</header>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPanel('plan',this)"><span class="dot"></span>Plan</button>
+  <button class="nav-btn" onclick="showPanel('nutrition',this)"><span class="dot"></span>Nutrition</button>
+  <button class="nav-btn" onclick="showPanel('progress',this)"><span class="dot"></span>Progress</button>
+  <button class="nav-btn" onclick="showPanel('supps',this)"><span class="dot"></span>Supps</button>
+  <button class="nav-btn" onclick="showPanel('rules',this)"><span class="dot"></span>Rules</button>
+</nav>
+
+<!-- PLAN -->
+<div id="panel-plan" class="panel active">
+  <div class="sec-title">Weekly Schedule</div>
+  <div class="week-strip">
+    <div class="day-pill active-day"><div class="day-pill-name">Mon</div><div class="day-pill-type">Push</div></div>
+    <div class="day-pill rest-day"><div class="day-pill-name">Tue</div><div class="day-pill-type">Rest</div></div>
+    <div class="day-pill active-day"><div class="day-pill-name">Wed</div><div class="day-pill-type">Pull</div></div>
+    <div class="day-pill rest-day"><div class="day-pill-name">Thu</div><div class="day-pill-type">Rest</div></div>
+    <div class="day-pill active-day"><div class="day-pill-name">Fri</div><div class="day-pill-type">Legs</div></div>
+    <div class="day-pill rest-day"><div class="day-pill-name">Sat</div><div class="day-pill-type">Rest</div></div>
+    <div class="day-pill rest-day"><div class="day-pill-name">Sun</div><div class="day-pill-type">Rest</div></div>
+  </div>
+  <div class="prog-phases">
+    <div class="prog-phase p1"><div class="ph-title">Month 1</div><div class="ph-sub">Learn movements</div><div class="ph-text">Light weight. Perfect form. Build the habit. Soreness is fine.</div></div>
+    <div class="prog-phase p2"><div class="ph-title">Month 2</div><div class="ph-sub">Push the weights</div><div class="ph-text">Track every lift. Add reps or weight weekly. Progressive overload kicks in.</div></div>
+    <div class="prog-phase p3"><div class="ph-title">Month 3</div><div class="ph-sub">Visible results</div><div class="ph-text">Target 54–55 kg. Physique changes visible if nutrition is consistent.</div></div>
+  </div>
+  <div class="sec-title">Day 1 — Push</div>
+  <div class="workout-card open" id="wc1">
+    <div class="wc-header" onclick="toggleCard('wc1')">
+      <div class="wc-left"><div class="wc-badge">01</div><div class="wc-info"><h3>Push — Chest · Shoulders · Triceps</h3><p>Monday · ~55 min · 6 exercises</p></div></div>
+      <div class="wc-right"><span class="wc-progress" id="prog1">0/6</span><button class="wc-toggle">▾</button></div>
+    </div>
+    <div class="ex-list" id="exlist1"></div>
+  </div>
+  <div class="sec-title" style="margin-top:20px;">Day 2 — Pull</div>
+  <div class="workout-card" id="wc2">
+    <div class="wc-header" onclick="toggleCard('wc2')">
+      <div class="wc-left"><div class="wc-badge">02</div><div class="wc-info"><h3>Pull — Back · Biceps</h3><p>Wednesday · ~55 min · 6 exercises</p></div></div>
+      <div class="wc-right"><span class="wc-progress" id="prog2">0/6</span><button class="wc-toggle">▾</button></div>
+    </div>
+    <div class="ex-list" id="exlist2"></div>
+  </div>
+  <div class="sec-title" style="margin-top:20px;">Day 3 — Legs + Core</div>
+  <div class="workout-card" id="wc3">
+    <div class="wc-header" onclick="toggleCard('wc3')">
+      <div class="wc-left"><div class="wc-badge">03</div><div class="wc-info"><h3>Legs + Core</h3><p>Friday · ~60 min · 8 exercises</p></div></div>
+      <div class="wc-right"><span class="wc-progress" id="prog3">0/8</span><button class="wc-toggle">▾</button></div>
+    </div>
+    <div class="ex-list" id="exlist3"></div>
+  </div>
+</div>
+
+<!-- NUTRITION -->
+<div id="panel-nutrition" class="panel">
+  <div class="sec-title">Daily Macro Targets</div>
+  <div class="macro-targets">
+    <div class="macro-block"><span class="macro-val" style="color:var(--lime);">2400</span><span class="macro-lbl">Calories</span></div>
+    <div class="macro-block"><span class="macro-val" style="color:var(--orange);">110g</span><span class="macro-lbl">Protein</span></div>
+    <div class="macro-block"><span class="macro-val" style="color:#60a5fa;">280g</span><span class="macro-lbl">Carbs</span></div>
+    <div class="macro-block"><span class="macro-val" style="color:#a78bfa;">70g</span><span class="macro-lbl">Fats</span></div>
+  </div>
+  <div class="sec-title">Meal Plan</div>
+  <div class="meal-cards">
+    <div class="meal-card">
+      <div class="meal-top"><div class="meal-name">🌅 Breakfast</div><div class="meal-kcal">~600 kcal</div></div>
+      <div class="meal-protein">~35g protein</div>
+      <ul class="meal-items"><li>3 whole eggs (any style)</li><li>2 rotis or 1 cup oats</li><li>1 banana</li><li>250ml full-fat milk</li><li>1 tbsp peanut butter</li></ul>
+    </div>
+    <div class="meal-card">
+      <div class="meal-top"><div class="meal-name">☀️ Lunch</div><div class="meal-kcal">~700 kcal</div></div>
+      <div class="meal-protein">~30g protein</div>
+      <ul class="meal-items"><li>2 cups rice or 3 rotis</li><li>Dal (2 ladles) or paneer curry</li><li>1 cup curd/raita</li><li>Sabzi (any)</li><li>Salad if available</li></ul>
+    </div>
+    <div class="meal-card">
+      <div class="meal-top"><div class="meal-name">🌙 Dinner</div><div class="meal-kcal">~650 kcal</div></div>
+      <div class="meal-protein">~35g protein</div>
+      <ul class="meal-items"><li>3 eggs or 150g chicken/paneer</li><li>2 rotis or 1 cup rice</li><li>Dal or sabzi</li><li>1 cup curd</li></ul>
+    </div>
+    <div class="meal-card">
+      <div class="meal-top"><div class="meal-name">🥜 Snacks ×2</div><div class="meal-kcal">~400 kcal</div></div>
+      <div class="meal-protein">~20g protein</div>
+      <ul class="meal-items"><li>Post-workout: banana + whey shake</li><li>Evening: 30g nuts + 2 boiled eggs</li><li>1 tbsp blackstrap molasses in warm milk</li><li>Peanut butter on bread (alt)</li></ul>
+    </div>
+  </div>
+  <div style="margin-top:16px;background:rgba(34,197,94,0.05);border:1px solid rgba(34,197,94,0.15);border-radius:10px;padding:14px 18px;">
+    <p style="font-size:12px;color:#86efac;line-height:1.8;font-family:'JetBrains Mono',monospace;">💡 <strong style="color:var(--green);">Key:</strong> Missing meals is the #1 reason skinny guys don't gain. Eat within 30–45 min post-workout. MuscleBlaze Biozyme whey recommended if hitting protein targets from food alone is tough.</p>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div id="panel-progress" class="panel">
+  <div class="sec-title">Log Workout / Weigh-In</div>
+  <div class="track-grid">
+    <div class="track-field"><label>Date</label><input type="date" id="inp-date"></div>
+    <div class="track-field"><label>Weight (kg)</label><input type="number" id="inp-weight" placeholder="52.0" step="0.1" min="40" max="120"></div>
+    <div class="track-field"><label>Workout</label>
+      <select id="inp-workout">
+        <option value="">— select —</option>
+        <option>Day 1 — Push</option>
+        <option>Day 2 — Pull</option>
+        <option>Day 3 — Legs + Core</option>
+        <option>Rest Day</option>
+      </select>
+    </div>
+    <div class="track-field"><label>Energy (1–10)</label><input type="number" id="inp-energy" placeholder="7" min="1" max="10"></div>
+    <div class="track-field"><label>Notes</label><input type="text" id="inp-notes" placeholder="PR, sore, etc."></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn-lime" onclick="saveLog()">＋ Save Entry</button>
+    <button class="btn-ghost" onclick="clearAllLogs()">Clear All</button>
+  </div>
+  <div class="sec-title">Weight Chart</div>
+  <div class="chart-wrap">
+    <h3>Weight over time (kg)</h3>
+    <canvas id="weightChart" height="160"></canvas>
+    <div id="chart-empty" style="text-align:center;padding:20px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">Log at least 2 entries to see chart</div>
+  </div>
+  <div class="sec-title">28-Day Streak</div>
+  <div class="streak-row" id="streak-row"></div>
+  <p style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:20px;"><span style="color:var(--lime);">■</span> workout &nbsp;<span style="color:rgba(255,255,255,0.15);">■</span> rest/no log &nbsp;<span style="color:rgba(239,68,68,0.5);">■</span> missed</p>
+  <div class="sec-title">Log History</div>
+  <div class="log-entries" id="log-list"></div>
+</div>
+
+<!-- SUPPS -->
+<div id="panel-supps" class="panel">
+  <div class="alert-banner" style="margin-bottom:20px;">
+    <div style="font-size:16px;margin-top:1px;">🩺</div>
+    <p><strong>Book your retest:</strong> Vitamin D + B12 loading phase is done. You need to verify current levels before adjusting dosage.</p>
+  </div>
+  <div class="sec-title">Your Protocol</div>
+  <div class="supp-grid">
+    <div class="supp-card"><div class="supp-top"><div class="supp-name">Neurokind Plus</div><div class="supp-time">Morning</div></div><div class="supp-note">Methylcobalamin + B-complex. Nerve function, energy metabolism, supports anti-greying.</div></div>
+    <div class="supp-card"><div class="supp-top"><div class="supp-name">Folic Acid 5mg</div><div class="supp-time">Morning</div></div><div class="supp-note">Critical for RBC production and cell repair. Key for premature greying (palitya) protocol.</div></div>
+    <div class="supp-card"><div class="supp-top"><div class="supp-name">D-Rise 60,000 IU</div><div class="supp-time">Every Sunday</div></div><div class="supp-note">Take after a fat-containing meal. Loading phase complete — retest Vitamin D levels now.</div></div>
+    <div class="supp-card"><div class="supp-top"><div class="supp-name">Mag Bisglycinate + Zinc</div><div class="supp-time">Nightly</div></div><div class="supp-note">Magnesium supports deep sleep and muscle recovery. Zinc supports testosterone. Both critical for gym gains.</div></div>
+    <div class="supp-card" style="border-color:rgba(200,255,0,0.15);"><div class="supp-top"><div class="supp-name" style="color:var(--lime);">Whey Protein</div><div class="supp-time">Post-workout</div></div><div class="supp-note">Optional but helpful. MuscleBlaze Biozyme recommended. Only if struggling to hit 110g protein from food.</div></div>
+    <div class="supp-card" style="border-color:rgba(200,255,0,0.15);"><div class="supp-top"><div class="supp-name" style="color:var(--lime);">Blackstrap Molasses</div><div class="supp-time">Nightly in milk</div></div><div class="supp-note">1 tbsp in warm milk. Natural B vitamins, iron, copper. Supports anti-greying alongside supplements.</div></div>
+  </div>
+</div>
+
+<!-- RULES -->
+<div id="panel-rules" class="panel">
+  <div class="sec-title">Non-Negotiables</div>
+  <div class="rule-cards">
+    <div class="rule-card"><div class="rule-num">01</div><div class="rule-body"><h4>Consistency over intensity</h4><p>3 sessions every week beats 5 sessions for 2 weeks then burnout. The habit is the foundation.</p></div></div>
+    <div class="rule-card"><div class="rule-num">02</div><div class="rule-body"><h4>Progressive overload is everything</h4><p>Add 1–2 reps or small weight increment weekly. Same weight after 4 weeks = no growth. Track every lift.</p></div></div>
+    <div class="rule-card"><div class="rule-num">03</div><div class="rule-body"><h4>Form first, always</h4><p>First 2 weeks: go lighter than you think. Correct movement patterns prevent injuries that set you back months.</p></div></div>
+    <div class="rule-card"><div class="rule-num">04</div><div class="rule-body"><h4>Protein every single day</h4><p>Gym without protein is noise. 100–110g daily minimum. Missing even one day sets muscle protein synthesis back.</p></div></div>
+    <div class="rule-card"><div class="rule-num">05</div><div class="rule-body"><h4>Fix your sleep timing</h4><p>Same wake-up time daily including weekends. Irregular sleep tanks testosterone and growth hormone — both critical at 25.</p></div></div>
+    <div class="rule-card"><div class="rule-num">06</div><div class="rule-body"><h4>Never skip legs</h4><p>Legs are your biggest muscle group. Squats and deadlifts release the most anabolic hormones. Skipping legs slows upper body gains too.</p></div></div>
+    <div class="rule-card"><div class="rule-num">07</div><div class="rule-body"><h4>Warm up every session</h4><p>5–7 minutes treadmill walk or light cycling before lifting. Cold muscles + heavy compound lifts = injury.</p></div></div>
+    <div class="rule-card"><div class="rule-num">08</div><div class="rule-body"><h4>Get the blood retest done</h4><p>Vitamin D and B12 deficiencies sabotage energy, mood, and recovery. Don't train hard while still potentially deficient. Book it this week.</p></div></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="gif-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Exercise Demo</div>
+      <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-gif" id="modal-gif-wrap"></div>
+      <div class="modal-links" id="modal-links"></div>
+      <div class="modal-cues" id="modal-cues"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const exercises = {
+  1:[
+    {name:"Barbell Bench Press",sets:"3 × 8–10",rest:"90s",tip:"Flat back, bar to lower chest, controlled descent",yt:"https://www.youtube.com/results?search_query=barbell+bench+press+form+tutorial",wl:"https://www.strengthlog.com/bench-press/",cues:["Retract shoulder blades before unracking","Bar touches lower chest, not neck","Drive feet into floor for leg drive","Control the descent — don't drop the bar"]},
+    {name:"Overhead Dumbbell Press",sets:"3 × 10",rest:"75s",tip:"Seated or standing, full ROM overhead",yt:"https://www.youtube.com/results?search_query=dumbbell+overhead+press+form",wl:"https://www.strengthlog.com/seated-dumbbell-press/",cues:["Core braced throughout","Press to full extension without locking aggressively","Lower to ear level, not below","Keep wrists neutral"]},
+    {name:"Incline Dumbbell Press",sets:"3 × 10",rest:"75s",tip:"30–45° incline for upper chest focus",yt:"https://www.youtube.com/results?search_query=incline+dumbbell+press+form",wl:"https://www.strengthlog.com/incline-dumbbell-press/",cues:["Bench at 30–45°, not too steep","Dumbbells touch at top","Elbows at 45° from body, not flared","Full stretch at bottom"]},
+    {name:"Lateral Raises",sets:"3 × 12",rest:"60s",tip:"Light weight, lead with elbows, slight forward lean",yt:"https://www.youtube.com/results?search_query=lateral+raise+correct+form",wl:"https://www.strengthlog.com/dumbbell-lateral-raise/",cues:["Slight bend in elbow throughout","Lead with elbows, not hands","Pause 1 sec at top","Lower controlled — don't drop"]},
+    {name:"Tricep Pushdown (Cable)",sets:"3 × 12",rest:"60s",tip:"Elbows fixed at sides, full extension at bottom",yt:"https://www.youtube.com/results?search_query=tricep+pushdown+cable+form",wl:"https://www.strengthlog.com/tricep-pushdown/",cues:["Elbows stay glued to torso","Full extension at bottom, squeeze","Don't lean forward excessively","Slow on the way back up"]},
+    {name:"Push-ups (Finisher)",sets:"2 × Failure",rest:"60s",tip:"Go to failure with controlled pace, no half reps",yt:"https://www.youtube.com/results?search_query=perfect+push+up+form+technique",wl:"https://www.strengthlog.com/push-up/",cues:["Straight line head to heel","Chest touches floor each rep","Don't let hips sag or pike","Stop when form breaks — that's true failure"]}
+  ],
+  2:[
+    {name:"Lat Pulldown",sets:"3 × 8–10",rest:"90s",tip:"Wide grip, pull to upper chest, slow return",yt:"https://www.youtube.com/results?search_query=lat+pulldown+proper+form",wl:"https://www.strengthlog.com/lat-pulldown/",cues:["Lean back slightly ~15°","Pull bar to upper chest, not neck","Squeeze lats at bottom","Control the ascent — 2–3 seconds up"]},
+    {name:"Seated Cable Row",sets:"3 × 10",rest:"75s",tip:"Keep back straight, squeeze shoulder blades",yt:"https://www.youtube.com/results?search_query=seated+cable+row+form+tutorial",wl:"https://www.strengthlog.com/seated-cable-row/",cues:["Keep back upright throughout","Drive elbows back, not just hands","Squeeze at full contraction for 1 sec","Stretch forward at start — full ROM"]},
+    {name:"One-Arm Dumbbell Row",sets:"3 × 10 each",rest:"75s",tip:"Brace on bench, full stretch at bottom",yt:"https://www.youtube.com/results?search_query=one+arm+dumbbell+row+form",wl:"https://www.strengthlog.com/dumbbell-row/",cues:["Flat back — no rotation","Let the dumbbell hang fully at bottom","Pull elbow to hip, not shoulder","Don't rush — controlled movement"]},
+    {name:"Face Pulls",sets:"3 × 12",rest:"60s",tip:"Rear delt + rotator cuff health — don't skip this",yt:"https://www.youtube.com/results?search_query=face+pull+form+cable+machine",wl:"https://www.strengthlog.com/face-pull/",cues:["Cable at eye level or higher","Pull to forehead, elbows flared wide","External rotation at end of movement","Light weight — this is health, not ego"]},
+    {name:"Barbell Curl",sets:"3 × 12",rest:"60s",tip:"Strict form, no swinging, squeeze at top",yt:"https://www.youtube.com/results?search_query=barbell+curl+strict+form",wl:"https://www.strengthlog.com/barbell-curl/",cues:["Elbows stay at sides throughout","Don't lean back at the top","Squeeze at full contraction","Slow eccentric — 2 sec lower"]},
+    {name:"Hammer Curl",sets:"2 × 12",rest:"60s",tip:"Neutral grip hits brachialis for arm thickness",yt:"https://www.youtube.com/results?search_query=hammer+curl+form+brachialis",wl:"https://www.strengthlog.com/hammer-curl/",cues:["Neutral grip — thumbs pointing up","Alternate or both arms","No torso swinging","Full extension at bottom each rep"]}
+  ],
+  3:[
+    {name:"Barbell Squat",sets:"3 × 8–10",rest:"2 min",tip:"Depth below parallel, chest up, knees track toes",yt:"https://www.youtube.com/results?search_query=barbell+squat+form+beginners+tutorial",wl:"https://www.strengthlog.com/squat/",cues:["Bar on upper traps, not neck","Brace core, big breath before descent","Knees track over toes — don't cave in","Depth: hip crease below knee"]},
+    {name:"Romanian Deadlift",sets:"3 × 10",rest:"90s",tip:"Hamstring stretch, hinge at hips, bar close to legs",yt:"https://www.youtube.com/results?search_query=romanian+deadlift+form+tutorial",wl:"https://www.strengthlog.com/romanian-deadlift/",cues:["Micro-bend in knees throughout","Push hips back — don't squat down","Feel the stretch in hamstrings","Bar stays close to legs the whole way"]},
+    {name:"Leg Press",sets:"3 × 12",rest:"90s",tip:"Swap with squats if form feels unsafe early on",yt:"https://www.youtube.com/results?search_query=leg+press+form+feet+placement",wl:"https://www.strengthlog.com/leg-press/",cues:["Feet shoulder-width or slightly wider","Don't lock out knees at top","Controlled descent — don't let weight crash","Full ROM — thighs to 90° or below"]},
+    {name:"Leg Curl (Machine)",sets:"3 × 12",rest:"60s",tip:"Hamstring isolation — slow controlled return",yt:"https://www.youtube.com/results?search_query=lying+leg+curl+machine+form",wl:"https://www.strengthlog.com/leg-curl/",cues:["Lie flat, don't arch back excessively","Curl to full contraction — squeeze","Slow return — 2–3 seconds","Don't let hips lift off pad"]},
+    {name:"Leg Extension (Machine)",sets:"3 × 12",rest:"60s",tip:"Quad isolation — don't hyperextend knees",yt:"https://www.youtube.com/results?search_query=leg+extension+machine+correct+form",wl:"https://www.strengthlog.com/leg-extension/",cues:["Full extension but don't lock out aggressively","Squeeze quads at top for 1 sec","Controlled descent — 2 sec down","Seated upright, back against pad"]},
+    {name:"Calf Raises",sets:"3 × 15",rest:"45s",tip:"Full stretch at bottom, pause and squeeze at top",yt:"https://www.youtube.com/results?search_query=standing+calf+raises+form",wl:"https://www.strengthlog.com/calf-raise/",cues:["Full range: deep stretch at bottom","Rise to toes, pause 1 sec at peak","Slow and controlled — not bouncing","Can be done on a step for more ROM"]},
+    {name:"Plank",sets:"3 × 40 sec",rest:"45s",tip:"Core braced throughout, don't hold your breath",yt:"https://www.youtube.com/results?search_query=plank+proper+form+core",wl:"https://www.strengthlog.com/plank/",cues:["Forearms on ground, body straight","Squeeze glutes and core simultaneously","Don't let hips sag or pike","Breathe steadily throughout"]},
+    {name:"Hanging Knee Raise",sets:"3 × 12",rest:"60s",tip:"Slow and controlled, zero swinging momentum",yt:"https://www.youtube.com/results?search_query=hanging+knee+raise+form+abs",wl:"https://www.strengthlog.com/hanging-knee-raise/",cues:["Grip firmly, shoulder-width apart","No swinging — if you are, slow down","Bring knees to 90° or higher","Lower legs slowly — full extension"]}
+  ]
+};
+
+function renderExercises(){
+  [1,2,3].forEach(day=>{
+    const container=document.getElementById('exlist'+day);
+    const state=getState(day);
+    container.innerHTML=exercises[day].map((ex,i)=>`
+      <div class="ex-row${state[i]?' done':''}" id="ex-${day}-${i}" onclick="toggleEx(${day},${i},event)">
+        <div class="ex-check">${state[i]?'✓':''}</div>
+        <div class="ex-body">
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-meta"><span class="ex-sets">${ex.sets}</span><span class="ex-rest">Rest ${ex.rest}</span></div>
+          <div class="ex-tip">${ex.tip}</div>
+        </div>
+        <button class="ex-gif-btn" title="View form demo" onclick="openModal(event,${day},${i})">▶</button>
+      </div>`).join('');
+    updateProg(day);
+  });
+}
+
+function getState(day){try{return JSON.parse(localStorage.getItem('ex-s'+day)||'[]');}catch{return[];}}
+function setState(day,s){localStorage.setItem('ex-s'+day,JSON.stringify(s));}
+
+function toggleEx(day,idx,e){
+  if(e.target.closest('.ex-gif-btn'))return;
+  const s=getState(day);s[idx]=!s[idx];setState(day,s);
+  const row=document.getElementById('ex-'+day+'-'+idx);
+  row.classList.toggle('done',!!s[idx]);
+  row.querySelector('.ex-check').textContent=s[idx]?'✓':'';
+  updateProg(day);
+}
+
+function updateProg(day){
+  const s=getState(day);
+  const done=s.filter(Boolean).length;
+  document.getElementById('prog'+day).textContent=done+'/'+exercises[day].length;
+}
+
+function toggleCard(id){document.getElementById(id).classList.toggle('open');}
+
+function openModal(e,day,idx){
+  e.stopPropagation();
+  const ex=exercises[day][idx];
+  document.getElementById('modal-title').textContent=ex.name;
+  document.getElementById('modal-gif-wrap').innerHTML=`
+    <div class="modal-gif-placeholder">
+      <div class="gif-icon">🎬</div>
+      <p style="font-size:12px;color:var(--muted2);line-height:1.6;">Watch the tutorial on YouTube or read the full form guide below.</p>
+    </div>`;
+  document.getElementById('modal-links').innerHTML=`
+    <a class="modal-link" href="${ex.yt}" target="_blank" rel="noopener">▶ YouTube Tutorial</a>
+    <a class="modal-link" href="${ex.wl}" target="_blank" rel="noopener">📖 Form Guide</a>`;
+  document.getElementById('modal-cues').innerHTML=`<h4>Coaching Cues</h4><ul class="cue-list">${ex.cues.map(c=>`<li>${c}</li>`).join('')}</ul>`;
+  document.getElementById('gif-modal').classList.add('open');
+}
+function closeModal(e){if(e.target===document.getElementById('gif-modal'))document.getElementById('gif-modal').classList.remove('open');}
+function closeModalBtn(){document.getElementById('gif-modal').classList.remove('open');}
+
+function showPanel(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// PROGRESS LOG
+let logs=[];
+try{logs=JSON.parse(localStorage.getItem('wlogs-v3')||'[]');}catch{}
+
+function saveLog(){
+  const date=document.getElementById('inp-date').value;
+  const weight=parseFloat(document.getElementById('inp-weight').value);
+  const workout=document.getElementById('inp-workout').value;
+  const energy=document.getElementById('inp-energy').value;
+  const notes=document.getElementById('inp-notes').value;
+  if(!date){alert('Please enter a date.');return;}
+  logs.unshift({date,weight:isNaN(weight)?null:weight,workout,energy:energy||null,notes});
+  logs.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  persist();renderLogs();renderChart();renderStreak();
+  ['inp-date','inp-weight','inp-energy','inp-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('inp-workout').value='';
+  setDefaultDate();
+}
+
+function deleteLog(i){
+  if(!confirm('Delete this entry?'))return;
+  logs.splice(i,1);persist();renderLogs();renderChart();renderStreak();
+}
+
+function clearAllLogs(){
+  if(!confirm('Clear ALL entries? Cannot be undone.'))return;
+  logs=[];persist();renderLogs();renderChart();renderStreak();
+}
+
+function persist(){localStorage.setItem('wlogs-v3',JSON.stringify(logs));}
+
+function renderLogs(){
+  const c=document.getElementById('log-list');
+  if(!logs.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div>No entries yet.<br>Log your first weigh-in above.</div>';return;}
+  c.innerHTML=logs.map((l,i)=>`
+    <div class="log-entry">
+      <div>
+        <div class="log-date">${l.date}${l.workout?' · '+l.workout:''}</div>
+        <div class="log-detail">${l.energy?'Energy: '+l.energy+'/10':''}${l.notes?' · '+l.notes:''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        ${l.weight?`<div><div class="log-weight-val">${l.weight}</div><div class="log-weight-unit">kg</div></div>`:'<div style="color:var(--muted);font-size:12px;">—</div>'}
+        <button class="log-del" onclick="deleteLog(${i})" title="Delete">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+let chartInst=null;
+function renderChart(){
+  const wl=logs.filter(l=>l.weight).slice().reverse();
+  const canvas=document.getElementById('weightChart');
+  const empty=document.getElementById('chart-empty');
+  if(wl.length<2){canvas.style.display='none';empty.style.display='block';if(chartInst){chartInst.destroy();chartInst=null;}return;}
+  canvas.style.display='block';empty.style.display='none';
+  if(chartInst)chartInst.destroy();
+  chartInst=new Chart(canvas.getContext('2d'),{
+    type:'line',
+    data:{
+      labels:wl.map(l=>l.date),
+      datasets:[
+        {label:'Weight (kg)',data:wl.map(l=>l.weight),borderColor:'#c8ff00',backgroundColor:'rgba(200,255,0,0.05)',pointBackgroundColor:'#c8ff00',pointBorderColor:'#080808',pointRadius:5,pointHoverRadius:7,tension:0.35,fill:true},
+        {label:'Target 60 kg',data:wl.map(()=>60),borderColor:'rgba(255,92,26,0.4)',borderDash:[6,4],pointRadius:0,tension:0}
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{labels:{color:'#666',font:{family:'JetBrains Mono',size:10},boxWidth:12}},tooltip:{backgroundColor:'#181818',titleColor:'#c8ff00',bodyColor:'#ccc',borderColor:'#2c2c2c',borderWidth:1}},
+      scales:{x:{ticks:{color:'#555',font:{family:'JetBrains Mono',size:9}},grid:{color:'#1a1a1a'}},y:{ticks:{color:'#555',font:{family:'JetBrains Mono',size:10}},grid:{color:'#1a1a1a'},min:48,max:64}}
+    }
+  });
+}
+
+function renderStreak(){
+  const row=document.getElementById('streak-row');
+  const today=new Date();
+  const logMap={};
+  logs.forEach(l=>{if(l.date)logMap[l.date]=l.workout||'workout';});
+  let dots='',streak=0;
+  for(let i=27;i>=0;i--){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const key=d.toISOString().split('T')[0];
+    const entry=logMap[key];
+    let cls='';
+    if(entry){cls=entry==='Rest Day'?'restlog':'hit';}
+    dots+=`<div class="streak-dot ${cls}" title="${key}"></div>`;
+  }
+  let s=0;
+  for(let i=0;i<28;i++){
+    const d=new Date(today);d.setDate(today.getDate()-i);
+    const key=d.toISOString().split('T')[0];
+    const entry=logMap[key];
+    if(entry&&entry!=='Rest Day')s++;
+    else if(i>0)break;
+  }
+  document.getElementById('streak-count').textContent=s;
+  row.innerHTML=dots;
+}
+
+function setDefaultDate(){
+  document.getElementById('inp-date').value=new Date().toISOString().split('T')[0];
+}
+
+renderExercises();renderLogs();renderChart();renderStreak();setDefaultDate();
+</script>
+
+<div id="install-banner" style="display:none;position:fixed;bottom:16px;left:16px;right:16px;background:#0f0f0f;border:1px solid rgba(200,255,0,0.3);border-radius:12px;padding:14px 16px;z-index:200;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+  <div style="font-size:12px;line-height:1.5;font-family:monospace;color:#ccc;">
+    <strong style="color:#c8ff00;">Add to Home Screen</strong><br>
+    Open as app, works offline
+  </div>
+  <div style="display:flex;gap:8px;flex-shrink:0;">
+    <button onclick="installApp()" style="background:#c8ff00;color:#000;border:none;padding:8px 14px;border-radius:7px;font-family:monospace;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px;">Install</button>
+    <button onclick="dismissBanner()" style="background:none;color:#666;border:1px solid #2c2c2c;padding:8px 10px;border-radius:7px;font-size:11px;cursor:pointer;">✕</button>
+  </div>
+</div>
+<script>
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  const b=document.getElementById('install-banner');
+  if(b&&!localStorage.getItem('pwa-dismissed')){b.style.display='flex';}
+});
+function installApp(){
+  const b=document.getElementById('install-banner');
+  if(b)b.style.display='none';
+  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;});}
+}
+function dismissBanner(){
+  const b=document.getElementById('install-banner');
+  if(b)b.style.display='none';
+  localStorage.setItem('pwa-dismissed','1');
+}
+window.addEventListener('appinstalled',()=>{
+  const b=document.getElementById('install-banner');
+  if(b)b.style.display='none';
+});
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js')
+      .then(r=>console.log('SW:',r.scope))
+      .catch(e=>console.log('SW err:',e));
+  });
+}
+</script>
+</body>
+</html>
