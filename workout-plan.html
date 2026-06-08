@@ -970,5 +970,37 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
+<div id="install-banner" style="display:none;position:fixed;bottom:16px;left:16px;right:16px;background:#0f0f0f;border:1px solid rgba(200,255,0,0.3);border-radius:12px;padding:14px 16px;z-index:200;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+  <div style="font-size:12px;line-height:1.5;font-family:monospace;color:#ccc;">
+    <strong style="color:#c8ff00;">Add to Home Screen</strong><br>
+    Works offline, opens like an app
+  </div>
+  <div style="display:flex;gap:8px;flex-shrink:0;">
+    <button onclick="installApp()" style="background:#c8ff00;color:#000;border:none;padding:8px 14px;border-radius:7px;font-family:monospace;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px;">Install</button>
+    <button onclick="dismissBanner()" style="background:none;color:#666;border:1px solid #2c2c2c;padding:8px 10px;border-radius:7px;font-size:11px;cursor:pointer;">✕</button>
+  </div>
+</div>
+<script>
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  const b=document.getElementById('install-banner');
+  if(b&&!localStorage.getItem('pwa-dismissed')){b.style.display='flex';}
+});
+function installApp(){
+  const b=document.getElementById('install-banner');
+  if(b)b.style.display='none';
+  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;});}
+}
+function dismissBanner(){
+  const b=document.getElementById('install-banner');
+  if(b)b.style.display='none';
+  localStorage.setItem('pwa-dismissed','1');
+}
+window.addEventListener('appinstalled',()=>{
+  const b=document.getElementById('install-banner');
+  if(b)b.style.display='none';
+});
+</script>
 </body>
 </html>
